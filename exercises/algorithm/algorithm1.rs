@@ -2,7 +2,7 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,16 +69,39 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
-        }
-	}
+	
 }
+
+impl<T: PartialOrd + Clone> LinkedList<T> {
+    pub fn merge(list_a: LinkedList<T>, list_b: LinkedList<T>) -> Self {
+        let mut merged_list = LinkedList::new();
+        let mut a = list_a.start;
+        let mut b = list_b.start;
+
+        while a.is_some() || b.is_some() {
+            if let Some(node_a) = a {
+                if let Some(node_b) = b {
+                    if unsafe { node_a.as_ref().val.clone() } <= unsafe { node_b.as_ref().val.clone() } {
+                        merged_list.add(unsafe { node_a.as_ref().val.clone() });
+                        a = unsafe { (*node_a.as_ptr()).next };
+                    } else {
+                        merged_list.add(unsafe { node_b.as_ref().val.clone() });
+                        b = unsafe { (*node_b.as_ptr()).next };
+                    }
+                } else {
+                    merged_list.add(unsafe { node_a.as_ref().val.clone() });
+                    a = unsafe { (*node_a.as_ptr()).next };
+                }
+            } else if let Some(node_b) = b {
+                merged_list.add(unsafe { node_b.as_ref().val.clone() });
+                b = unsafe { (*node_b.as_ptr()).next };
+            }
+        }
+
+        merged_list
+    }
+}
+
 
 impl<T> Display for LinkedList<T>
 where
